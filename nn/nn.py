@@ -3,6 +3,10 @@ import numpy as np
 from typing import List, Dict, Tuple, Union
 from numpy.typing import ArrayLike
 
+""""
+getting help from ChatGPT and Isaiah Hazelwood (Biophysics student)
+"""
+
 class NeuralNetwork:
     """
     This is a class that generates a fully-connected neural network.
@@ -75,6 +79,8 @@ class NeuralNetwork:
             layer_idx = idx + 1
             input_dim = layer['input_dim']
             output_dim = layer['output_dim']
+            #creates weights from a standard normal distribution (mean = 0, std = 1) and scales them down by multiplying by 0.1.
+            #generates a matrix of shape output_dim, input_dim, because need to connect every input neuron to an output neuron. 
             param_dict['W' + str(layer_idx)] = np.random.randn(output_dim, input_dim) * 0.1
             param_dict['b' + str(layer_idx)] = np.random.randn(output_dim, 1) * 0.1
 
