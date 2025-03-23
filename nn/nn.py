@@ -226,7 +226,42 @@ class NeuralNetwork:
             grad_dict: Dict[str, ArrayLike]
                 Dictionary containing the gradient information from this pass of backprop.
         """
-        pass
+        if self._loss_func == "mean_square_error":
+            curr_dA = self._mean_squared_error_backprop(y, y_hat)
+        elif self._loss_func == "binary_cross_entropy":
+            curr_dA = self._binary_cross_entropy_backprop(y, y_hat)
+        else:
+            raise ValueError(f"Unknown loss function {self._loss_func}")
+        
+        grad_dict = {}
+
+        #loop backwards through layers
+        for idx, layer in reversed(list(enumerate(self.arch))):
+            layer_idx = idx + 1
+
+            W_curr = self._param_dict[f"W{layer_idx}"]
+            b_curr = self._param_dict[f"b{layer_idx}"]
+            Z_curr = cache[f"Z{layer_idx}"]
+            A_prev = cache[f"A{idx}"] #A0 is input, A1 is after layer 1... 
+            activation = layer["activation"]
+
+            dA_prev, dW_curr, db_curr = self._single_backprop(
+                W_curr, 
+                b_curr, 
+                Z_curr, 
+                A_prev, 
+                curr_dA, 
+                activation
+            )
+
+            #save gradients
+            grad_dict[f"dW{layer_idx}"] = dW_curr
+            grad_dict[f"db{layer_idx}"] = db_curr
+
+            #move one layer back 
+            curr_dA = dA_prev
+        
+        return grad_dict
 
     def _update_params(self, grad_dict: Dict[str, ArrayLike]):
         """
