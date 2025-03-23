@@ -194,6 +194,8 @@ class NeuralNetwork:
             db_curr: ArrayLike
                 Partial derivative of loss function with respect to current layer bias matrix.
         """
+
+        #dZ is the dLoss/dZ = dL/dA * activation of Z, so the contribution of the activation function to how the loss changes
         if activation_curr == "relu":
             dZ_curr = self._relu_backprop(dA_curr, Z_curr)
 
@@ -202,8 +204,17 @@ class NeuralNetwork:
         else:
             raise ValueError(f"Unknown activation: {activation_curr}")
         
+        #tells me how much the output A_prev influenced the loss. this is the signal I send back to the previous layer. 
+        #this is the starting dA for the previous layer in my next single_backprop call. 
         dA_prev = W_curr.T @ dZ_curr
+
+        #tells me how much the loss would change if I change each weight slightly. 
+        #for every weight between neuron i and neuron j it says how much would it change the final loss if I tweak the weight up or down a bit. 
+        #this it the key ingredient for updating the weights. W = W - learning_rate * dW
         dW_curr = dZ_curr @ A_prev.transpose((0, 2, 1))
+
+        #db is the sum of dZ across batch (here only one layer, no batch)
+        #how much did shifting the bias up or down affect the loss? b = b - learning_rate * db
         db_curr = dZ_curr
 
         return dA_prev, dW_curr, db_curr
@@ -272,7 +283,16 @@ class NeuralNetwork:
             grad_dict: Dict[str, ArrayLike]
                 Dictionary containing the gradient information from most recent round of backprop.
         """
-        pass
+
+        #we want to update the weights based on the average error across all examples in the batch, not just one of them. 
+
+        for idx, layer in reversed(list(enumerate(self.arch))):
+            layer_idx = idx + 1
+            #to minimize loss, we go in the opposite direction. the gradient tells us the direction of the steepest increase.
+            #so we update weights like: W = W - learning_rate * dW. same for biases. the learning rate defines how big of a step we should go in the opposite direction.
+            self._param_dict[f"W{layer_idx}"] -= self._lr * np.mean(grad_dict[f"W{layer_idx}"], axis=0)
+            self._param_dict[f"b{layer_idx}"] -= self._lr * np.mean(grad_dict[f"b{layer_idx}"], axis=0)
+
 
     def fit(
         self,
@@ -301,7 +321,35 @@ class NeuralNetwork:
             per_epoch_loss_val: List[float]
                 List of per epoch loss for validation set.
         """
-        pass
+        #epoch is one complete pass through the entire training dataset
+        per_epoch_loss_train = []
+        per_epoch_loss_val = []
+        for epoch_i in range(self.epochs):
+            for batch_i in range(X_train.shape[0] // self._batch_size):
+                batch_start = batch_i * self._batch_size
+                batch_stop = (batch_i + 1) * self._batch_size 
+                X_train_batch = X_train[batch_start:batch_stop, :]
+                y_train_batch = y_train[batch_start:batch_stop, :]
+                y_pred_batch, forward_cache = self.forward(X_train_batch)
+                batch_grads = self.backprop(y_train_batch, y_pred_batch, forward_cache)
+                self._update_params(batch_grads)
+
+            #calculating the accuracies for this epok
+            y_train_pred = self.predict(X_train)
+            y_val_pred = self.predict(X_val)
+            if self._loss_func == "mean_square_error":
+                per_epoch_loss_train.append(self._mean_squared_error(y_train, y_train_pred))
+                per_epoch_loss_val.append(self._mean_squared_error(y_val, y_val_pred))
+            elif self._loss_func == "binary_cross_entropy":
+                per_epoch_loss_train.append(self._binary_cross_entropy(y_train, y_train_pred))
+                per_epoch_loss_val.append(self._binary_cross_entropy(y_val, y_val_pred))
+            else: 
+                raise ValueError(f"Unknown loss function {self._loss_func}")
+            
+        return per_epoch_loss_train, per_epoch_loss_val
+
+
+
 
     def predict(self, X: ArrayLike) -> ArrayLike:
         """
