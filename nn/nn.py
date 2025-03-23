@@ -112,7 +112,17 @@ class NeuralNetwork:
             Z_curr: ArrayLike
                 Current layer linear transformed matrix.
         """
-        pass
+        Z_curr = W_curr @ A_prev + b_curr
+        if activation == "relu":
+            A_curr = self._relu(Z_curr)
+        if activation == "sigmoid":
+            A_curr = self._sigmoid(Z_curr)
+
+        else:
+            raise ValueError(f"Unknown activation {activation}")
+        
+        return A_curr, Z_curr
+
 
     def forward(self, X: ArrayLike) -> Tuple[ArrayLike, Dict[str, ArrayLike]]:
         """
