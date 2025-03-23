@@ -117,10 +117,8 @@ class NeuralNetwork:
             A_curr = self._relu(Z_curr)
         if activation == "sigmoid":
             A_curr = self._sigmoid(Z_curr)
-
         else:
             raise ValueError(f"Unknown activation {activation}")
-        
         return A_curr, Z_curr
 
 
@@ -137,8 +135,30 @@ class NeuralNetwork:
                 Output of forward pass.
             cache: Dict[str, ArrayLike]:
                 Dictionary storing Z and A matrices from `_single_forward` for use in backprop.
+
+        _single_forward() is being called for each layer. can think of it as the method looping through all layers in self.arch. 
         """
-        pass
+        curr_A = X
+        """
+        in the cache I store intermediate values (like Z and A for each layer) during the forward pass. 
+        Because during backpropagation, I need these intermediate values to compute the gradients. I need Z (the linear outputs) to compute derivatives 
+        of activation functions. I need A_prev (activations from previous layer) to compute gradients for weights: dW = dZ @ A_prev.T
+        """
+
+        cache = {}
+        #store input as A0
+        cache["A0"] = curr_A
+        for idx, layer in enumerate(self.arch):
+            layer_idx = idx + 1
+            next_A, next_Z = self._single_forward(self._param_dict[f"W{layer_idx}"],
+                                                  self._param_dict[f"b{layer_idx}"],
+                                                  curr_A, 
+                                                  layer["activation"])
+            cache[f"Z{layer_idx}"] = next_Z
+            cache[f"A{layer_idx}"] = next_A
+            curr_A = next_A
+        return curr_A, cache
+   
 
     def _single_backprop(
         self,
