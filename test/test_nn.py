@@ -1,5 +1,11 @@
 # TODO: import dependencies and write unit tests below
 
+import numpy as np
+import pytest
+from nn import nn 
+
+"again, help from ChatGPT and Isaiah Hazelwoods code"
+
 def test_single_forward():
     pass
 
