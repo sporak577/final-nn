@@ -112,7 +112,7 @@ class NeuralNetwork:
             Z_curr: ArrayLike
                 Current layer linear transformed matrix.
         """
-        Z_curr = W_curr @ A_prev + b_curr
+        Z_curr = A_prev @ W_curr.T + b_curr.T
         if activation == "relu":
             A_curr = self._relu(Z_curr)
         if activation == "sigmoid":
@@ -328,7 +328,7 @@ class NeuralNetwork:
             for batch_i in range(X_train.shape[0] // self._batch_size):
                 batch_start = batch_i * self._batch_size
                 batch_stop = (batch_i + 1) * self._batch_size 
-                X_train_batch = X_train[batch_start:batch_stop, :]
+                X_train_batch = X_train[batch_start:batch_stop,:]
                 y_train_batch = y_train[batch_start:batch_stop, :]
                 y_pred_batch, forward_cache = self.forward(X_train_batch)
                 batch_grads = self.backprop(y_train_batch, y_pred_batch, forward_cache)
