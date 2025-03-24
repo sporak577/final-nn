@@ -68,7 +68,23 @@ def one_hot_encode_seqs(seq_arr: List[str]) -> ArrayLike:
     hot encoding is a way to convert categorical data into a format that a machine learning model can understand - numbers. 
     so here categorical is a letter A, T, G or C
     """
-    return [one_hot_encode_seqs(seq) for seq in seq_arr]
+    mapping = {
+        'A': [1, 0, 0, 0], 
+        'T': [0, 1, 0, 0],
+        'C': [0, 0, 1, 0],
+        'G': [0, 0, 0, 1],
+        'N': [0, 0, 0, 0]  # fallback for unknown bases
+    }
+    
+    encoded_seqs = []
+    for seq in seq_arr:
+        encoding = []
+        for base in seq.upper(): # iterate over each character explicitly
+            encoding.extend(mapping.get(base, [0,0,0,0]))
+        encoded_seqs.append(encoding)
+        
+    return np.array(encoded_seqs)
+    
 
 def one_hot_encode_seqs(seq: str) -> ArrayLike:
     """
