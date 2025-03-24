@@ -49,28 +49,61 @@ def test_single_backprop():
 
     dA_prev, dW, db = nn._single_backprop(W, b, Z_curr, A_prev, dA, "relu")
 
+    #I want to know if I change this specific weight, how wil the loss change.
+    #so for each weight I need a gradient. 
     assert dW.shape == W.shape
+    #same for the bias term. each output neuron has a bias term. 
     assert db.shape == b.shape
+    #and I want to know how the previous layer influenced the loss. 
+    #need one gradient for each activation per input sample.
     assert dA_prev.shape == A_prev.shape
     
 
 def test_predict():
-    pass
+    nn = nn.NeuralNetwork(
+        nn_arch=[{'input_dim': 2, 'output_dim': 1, 'activation': 'sigmoid'}],
+        lr=0.01, seed=42, batch_size=1, epochs=1, loss_function='binary_cross_entropy'
+    )
+    X = np.array([[1.0, 2.0]])
+    y_pred = nn.predict(X)
+    assert y_pred.shape == (1, 1)
+    assert (y_pred >= 0).all() and (y_pred <= 1).all()
 
 def test_binary_cross_entropy():
-    pass
+    nn = nn.NeuralNetwork([], 0.01, 0, 1, 1, 'binary_cross_entropy')
+    y = np.array([[1], [0]])
+    y_hat = np.array([[0.9], [0.1]])
+    loss = nn._binary_cross_entropy(y, y_hat)
+    expected = -np.mean(y * np.log(y_hat) + (1 - y) * np.log(1 - y_hat))
+    assert np.isclose(loss, expected)
 
 def test_binary_cross_entropy_backprop():
-    pass
+    nn = nn.NeuralNetwork([], 0.01, 0, 1, 1, 'binary_cross_entropy')
+    y = np.array([[1.0], [0.0]])
+    y_hat = np.array([[0.9], [0.1]])
+    dA = nn._binary_cross_entropy_backprop(y, y_hat)
+    expected = - y / y_hat + (1 - y) / (1 - y_hat)
+    assert np.allclose(dA, expected)
 
 def test_mean_squared_error():
-    pass
+    nn = nn.NeuralNetwork([], 0.01, 0, 1, 1, 'mean_square_error')
+    y = np.array([[1], [0]])
+    y_hat = np.array([[0.9], [0.1]])
+    loss = nn._mean_squared_error(y, y_hat)
+    expected = np.mean(np.sum((y_hat - y) ** 2, axis=1))
+    assert np.isclose(loss, expected)
 
 def test_mean_squared_error_backprop():
-    pass
+    def test_mean_squared_error_backprop():
+    nn = nn.NeuralNetwork([], 0.01, 0, 1, 1, 'mean_square_error')
+    y = np.array([[1], [0]])
+    y_hat = np.array([[0.9], [0.1]])
+    dA = nn._mean_squared_error_backprop(y, y_hat)
+    expected = 2 * (y_hat - y)
+    assert np.allclose(dA, expected)
 
 def test_sample_seqs():
-    pass
+    
 
 def test_one_hot_encode_seqs():
     pass
