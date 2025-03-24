@@ -64,5 +64,27 @@ def one_hot_encode_seqs(seq_arr: List[str]) -> ArrayLike:
                 C -> [0, 0, 1, 0]
                 G -> [0, 0, 0, 1]
             Then, AGA -> [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0].
+
+    hot encoding is a way to convert categorical data into a format that a machine learning model can understand - numbers. 
+    so here categorical is a letter A, T, G or C
     """
-    pass
+    #mapping for each base
+    mapping = {
+        'A': [1, 0, 0, 0], 
+        'T': [0, 1, 0, 0],
+        'C': [0, 0, 1, 0],
+        'G': [0, 0, 0, 1]
+    }
+
+    encoded_seqs = []
+
+    for seq in seq_arr:
+        one_hot = []
+        for base in seq.uppe(): #make sure we are in uppercase
+            one_hot.extend(mapping.get(base, [0, 0, 0, 0])) #fallback for unknowns 
+        encoded_seqs.append(one_hot)
+
+    return np.array(encoded_seqs)
+
+
+    
