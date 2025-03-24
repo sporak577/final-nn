@@ -324,7 +324,7 @@ class NeuralNetwork:
         #epoch is one complete pass through the entire training dataset
         per_epoch_loss_train = []
         per_epoch_loss_val = []
-        for epoch_i in range(self.epochs):
+        for epoch_i in range(self._epochs):
             for batch_i in range(X_train.shape[0] // self._batch_size):
                 batch_start = batch_i * self._batch_size
                 batch_stop = (batch_i + 1) * self._batch_size 
