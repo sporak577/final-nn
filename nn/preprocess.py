@@ -3,6 +3,10 @@ import numpy as np
 from typing import List, Tuple
 from numpy.typing import ArrayLike
 
+"""also using ChatGPT 
+and help from Isaiah Hazelwoods code 
+"""
+
 def sample_seqs(seqs: List[str], labels: List[bool]) -> Tuple[List[str], List[bool]]:
     """
     This function should sample the given sequences to account for class imbalance. 
@@ -19,8 +23,28 @@ def sample_seqs(seqs: List[str], labels: List[bool]) -> Tuple[List[str], List[bo
             List of sampled sequences which reflect a balanced class size
         sampled_labels: List[bool]
             List of labels for the sampled sequences
+    
+    goal here is to sample with replacement from the minority class so that both classes have the same number; picking the same item multiple times is allowed. 
+    we do this because neural networks perform poorly on imbalanced data... can just predict majority class and still get high accuracy but poor real-world performance. 
     """
-    pass
+    #separate sequences into positive and negative classes 
+    pos_indices = np.where(np.array(labels))[0] #adding [0] extracts the actual 1D array of indices, as np.where() returns solely a tuple (array([idx, idx, idx]))
+    neg_indices = np.where(~np.array(labels))[0]
+
+    if len(neg_indices) > len(pos_indices):
+        sampled_indices = [i for i in neg_indices]
+        sampled_indices.extend(np.random.choice(pos_indices, len(neg_indices), replace=True)) #add enough positive indices to match negatives "extending" the minor by random
+
+    else:
+        sampled_indices = [i for i in pos_indices]
+        sampled_indices.extend(np.random.choice(neg_indices, len(pos_indices), replace=True))
+    
+    sampled_seqs = [seqs[i] for i in sampled_indices]
+    #grabs the label of at the index i from the original list
+    sampled_labels = [labels[i] for i in sampled_indices] 
+    return sample_seqs, sampled_labels
+
+
 
 def one_hot_encode_seqs(seq_arr: List[str]) -> ArrayLike:
     """
