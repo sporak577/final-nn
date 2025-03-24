@@ -266,8 +266,8 @@ class NeuralNetwork:
             )
 
             #save gradients
-            grad_dict[f"dW{layer_idx}"] = dW_curr
-            grad_dict[f"db{layer_idx}"] = db_curr
+            grad_dict[f"W{layer_idx}"] = dW_curr
+            grad_dict[f"b{layer_idx}"] = db_curr
 
             #move one layer back 
             curr_dA = dA_prev
