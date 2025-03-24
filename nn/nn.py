@@ -293,8 +293,8 @@ class NeuralNetwork:
             layer_idx = idx + 1
             #to minimize loss, we go in the opposite direction. the gradient tells us the direction of the steepest increase.
             #so we update weights like: W = W - learning_rate * dW. same for biases. the learning rate defines how big of a step we should go in the opposite direction.
-            self._param_dict[f"W{layer_idx}"] -= self._lr * np.mean(grad_dict[f"W{layer_idx}"])
-            self._param_dict[f"b{layer_idx}"] -= self._lr * np.mean(grad_dict[f"b{layer_idx}"])
+            self._param_dict[f"W{layer_idx}"] -= self._lr * grad_dict[f"W{layer_idx}"]
+            self._param_dict[f"b{layer_idx}"] -= self._lr * grad_dict[f"b{layer_idx}"]
 
 
     def fit(
