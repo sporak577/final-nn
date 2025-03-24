@@ -42,7 +42,7 @@ def sample_seqs(seqs: List[str], labels: List[bool]) -> Tuple[List[str], List[bo
     sampled_seqs = [seqs[i] for i in sampled_indices]
     #grabs the label of at the index i from the original list
     sampled_labels = [labels[i] for i in sampled_indices] 
-    return sample_seqs, sampled_labels
+    return sampled_seqs, sampled_labels
 
 
 
