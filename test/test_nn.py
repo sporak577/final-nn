@@ -2,9 +2,13 @@
 
 import numpy as np
 import pytest
-from nn import nn 
+from nn import nn, preprocess
 
-"again, help from ChatGPT and Isaiah Hazelwoods code"
+""""
+again, help from ChatGPT and Isaiah Hazelwoods code
+
+not to self np.isclose gives me an array of boolean, whereas np.allclose returns a single boolean. 
+"""
 
 def test_single_forward():
     nn = nn.NeuralNetwork(
@@ -70,6 +74,7 @@ def test_predict():
     assert (y_pred >= 0).all() and (y_pred <= 1).all()
 
 def test_binary_cross_entropy():
+    #empty [] means no layers, this is for testing loss only
     nn = nn.NeuralNetwork([], 0.01, 0, 1, 1, 'binary_cross_entropy')
     y = np.array([[1], [0]])
     y_hat = np.array([[0.9], [0.1]])
@@ -94,7 +99,6 @@ def test_mean_squared_error():
     assert np.isclose(loss, expected)
 
 def test_mean_squared_error_backprop():
-    def test_mean_squared_error_backprop():
     nn = nn.NeuralNetwork([], 0.01, 0, 1, 1, 'mean_square_error')
     y = np.array([[1], [0]])
     y_hat = np.array([[0.9], [0.1]])
@@ -103,7 +107,16 @@ def test_mean_squared_error_backprop():
     assert np.allclose(dA, expected)
 
 def test_sample_seqs():
-    
+    seqs = ["AAA", "AAA", "CCC"]
+    labels = [True, True, False]
+    sampled_seqs, sampled_labels = preprocess.sample_seqs(seqs, labels)
+    assert sampled_seqs == ["AAA", "AAA", "CCC", "CCC"]
+    assert sampled_labels == [True, True, False, False]
 
 def test_one_hot_encode_seqs():
-    pass
+    seqs = ["AAA", "ATT", "CCC"]
+    encoded_seqs = preprocess.one_hot_encode_seqs(seqs)
+    assert encoded_seqs == [[1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+                            [1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0],
+                            [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0]]
+    
