@@ -73,7 +73,7 @@ def one_hot_encode_seqs(seq_arr: List[str]) -> ArrayLike:
         'A': [1, 0, 0, 0], 
         'T': [0, 1, 0, 0],
         'C': [0, 0, 1, 0],
-        'G': [0, 0, 0, 1]
+        'G': [0, 0, 0, 1],
     }
 
     encoded_seqs = []
@@ -86,5 +86,22 @@ def one_hot_encode_seqs(seq_arr: List[str]) -> ArrayLike:
 
     return np.array(encoded_seqs)
 
+def one_hot_encode_seqs(seq: str) -> ArrayLike:
+    """
+    this function generates a flattened one-hot encoding of a single DNA
+    sequence for use as input into a neural network. 
+    """
+
+    encoding = []
+    mapping = {
+        'A': [1, 0, 0, 0], 
+        'T': [0, 1, 0, 0],
+        'C': [0, 0, 1, 0],
+        'G': [0, 0, 0, 1],
+    }
+    for aa in seq: 
+        encoding.extend(mapping[aa])
+        
+    return encoding
 
     
