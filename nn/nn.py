@@ -204,18 +204,21 @@ class NeuralNetwork:
         else:
             raise ValueError(f"Unknown activation: {activation_curr}")
         
-        #tells me how much the output A_prev influenced the loss. this is the signal I send back to the previous layer. 
-        #this is the starting dA for the previous layer in my next single_backprop call. 
-        dA_prev = W_curr.T @ dZ_curr
+        m = A_prev.shape[0] # batch size
+        
 
         #tells me how much the loss would change if I change each weight slightly. 
         #for every weight between neuron i and neuron j it says how much would it change the final loss if I tweak the weight up or down a bit. 
         #this it the key ingredient for updating the weights. W = W - learning_rate * dW
-        dW_curr = dZ_curr @ A_prev.transpose((0, 2, 1))
+        dW_curr = dZ_curr.T @ A_prev / m
 
         #db is the sum of dZ across batch (here only one layer, no batch)
         #how much did shifting the bias up or down affect the loss? b = b - learning_rate * db
-        db_curr = dZ_curr
+        db_curr = np.mean(dZ_curr, axis=0, keepdims=True).T
+
+        #tells me how much the output A_prev influenced the loss. this is the signal I send back to the previous layer. 
+        #this is the starting dA for the previous layer in my next single_backprop call. 
+        dA_prev = dZ_curr @ W_curr
 
         return dA_prev, dW_curr, db_curr
 
@@ -290,8 +293,8 @@ class NeuralNetwork:
             layer_idx = idx + 1
             #to minimize loss, we go in the opposite direction. the gradient tells us the direction of the steepest increase.
             #so we update weights like: W = W - learning_rate * dW. same for biases. the learning rate defines how big of a step we should go in the opposite direction.
-            self._param_dict[f"W{layer_idx}"] -= self._lr * np.mean(grad_dict[f"W{layer_idx}"], axis=0)
-            self._param_dict[f"b{layer_idx}"] -= self._lr * np.mean(grad_dict[f"b{layer_idx}"], axis=0)
+            self._param_dict[f"W{layer_idx}"] -= self._lr * np.mean(grad_dict[f"W{layer_idx}"])
+            self._param_dict[f"b{layer_idx}"] -= self._lr * np.mean(grad_dict[f"b{layer_idx}"])
 
 
     def fit(
