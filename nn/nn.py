@@ -115,7 +115,7 @@ class NeuralNetwork:
         Z_curr = A_prev @ W_curr.T + b_curr.T
         if activation == "relu":
             A_curr = self._relu(Z_curr)
-        if activation == "sigmoid":
+        elif activation == "sigmoid":
             A_curr = self._sigmoid(Z_curr)
         else:
             raise ValueError(f"Unknown activation {activation}")
